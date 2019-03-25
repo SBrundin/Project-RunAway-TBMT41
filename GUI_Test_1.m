@@ -107,6 +107,7 @@ function togglebutton1_Callback(hObject, eventdata, handles)
 % axis([0 2*pi -num num])
 % Hint: get(hObject,'Value') returns toggle state of togglebutton1
 
+
 t=0:1:2000;
 array2 = sin(t./30);
 init = array2;
@@ -253,6 +254,7 @@ end
       
       %Tid för grafen att uppdatera sig
       %pause(delay);
+     
   end
 end
 

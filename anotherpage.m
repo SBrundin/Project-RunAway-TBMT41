@@ -74,8 +74,7 @@ varargout{1} = handles.output;
 
 
 % --- Executes on button press in togglebutton1.
-function togglebutton1_Callback(hObject, eventdata, handles)
-pushbutton1_Callback(hObject, eventdata, handles);
+function togglebutton1_Callback(hObject, eventdata, handles);
 % hObject    handle to togglebutton1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
@@ -92,55 +91,12 @@ pushbutton1_Callback(hObject, eventdata, handles);
 % plot(x,y)
 % axis([0 2*pi -num num])
 % Hint: get(hObject,'Value') returns toggle state of togglebutton1
-
+a = [];
 t=0:1:2000;
 array2 = sin(t./30);
 init = array2;
+parpool(6);
 %axes(handles.maxes1); %make ax1 the current axes
-% 
-% 
-%serialPort = 'COMX'; %detta är input signal yo
-danielGrafik = 'TEST:Logger Data Serial';
-xxLabel = 'time(s)';
-yyLabel = 'data(signal)';
-plotGrid = 'on';
-min = -100;
-max = 100;
-scrollwidth = 10;
-delay = .01;
-
-% %initializerar variabler
- time = 0;
- data1 = 0;
- data2 = 0;
- data3 = 0;
- count = 0;
-% 
-% %förbereder grafiken
-plotGraph1 = plot(time,data1,'-o',...
-    'LineWidth',1,...
-    'MarkerSize',3,...
-    'MarkerEdgeColor','k',...
-    'MarkerFaceColor','r');
-hold on;
-
-plotGraph2 = plot(time,data2,'-o',...
-    'LineWidth',1,...
-    'MarkerSize',3,...
-    'MarkerEdgeColor','k',...
-    'MarkerFaceColor','y');
-plotGraph3 = plot(time,data3,'-o',...
-    'LineWidth',1,...
-    'MarkerSize',3,...
-    'MarkerEdgeColor','k',...
-    'MarkerFaceColor','b');
-
-title(danielGrafik,'FontSize',15);
-xlabel(xxLabel,'FontSize',12);
-ylabel(yyLabel,'FontSize',12);
-axis([0 10 min max]);
-grid(plotGrid) %aktiverar grid
-
     imaqreset;
 %create color and depth kinect videoinput objects
 colorVid = videoinput('kinect', 1);
@@ -182,7 +138,9 @@ SkeletonConnectionMap = [ [4 3];  % Neck 1
                         ];
    
 tic
-while ishandle(plotGraph1)
+for i = 1:200
+%x= true;
+%while (x == true)%ishandle(plotGraph1)
 [depthMap, depthMetaData] = getsnapshot(depthVid);
 anyBodiesTracked = any(depthMetaData.IsBodyTracked ~= 0);
 trackedBodies = find(depthMetaData.IsBodyTracked);
@@ -210,68 +168,130 @@ yDiff2 = (rightKneeKoord(2) - spineBaseKoord(2));
 xDiff3 = (rightShoulderKoord(1) - rightHand(1));
 yDiff3 = (rightShoulderKoord(2) - rightHand(2));
 bodyAngle = atan((yDiff)/(xDiff)) * 180/pi;
-armAngle = atan((yDiff3)/(xDiff3)) * 180/pi
+armAngle = atan((yDiff3)/(xDiff3)) * 180/pi;
+a = [a bodyAngle];
 end
  end
  else armAngle = 10;
      bodyAngle = -19;
-end
-%end
-%stop(depthVid);
+     a = [a bodyAngle];
+ end
+ 
+ % %initializerar variabler
+  time = 0;
+ data1 = 0;
+ data2 = 0;
+ data3 = 0;
+ count = 0;
+ 
+xxLabel = 'time(s)';
+yyLabel = 'data(signal)';
 
 
-%öppna kommunikation via SENSOR
-%  s = serial(serialPort);
-% disp('Stäng fönstret för att avsluta loggning');
-% fopen(s)
+axes(handles.maxes1)
+%Graf_1 maxes1: grafikdel av beräkningar
+%konstanter
 
-   %aktiverar timesdetektering
-%while ishandle(plotGraph)   %loopar den aktiva plotten
-    
-  %inputvalue = fscanf(array2,'%f');  %läser data i floatformat
-   inputvalue1 = (bodyAngle.*t./t);
-   inputvalue2 = (armAngle.*t./t);
-   inputvalue3 = sin(t./30).*80;
-  
-  %Ser till att mottagen data är korrekt
-  if(~isempty(inputvalue1)) %ej tom och ej float
+plotGrid1 = 'on';
+min1 = -100;
+max1 = 100;
+scrollwidth1 = 10;
+delay1 = .001;
+count1 = 0;
+
+%Grafikdetaljer
+plotGraph0 = plot(time,data1,'-o',...
+    'LineWidth',1,...
+    'MarkerSize',3,...
+    'MarkerEdgeColor','k',...
+    'MarkerFaceColor','r');
+hold on;
+
+%Grafikspecifikationer
+title('Graf 1','FontSize',15);
+xlabel(xxLabel,'FontSize',12);
+ylabel(yyLabel,'FontSize',12);
+axis([0 10 min1 max1]);
+grid(plotGrid1) %aktiverar grid
+
+%funktion of death
+inputvalue0 = (3.*toc); %(bodyAngle.*t./t);
+if(~isempty(inputvalue0)) %ej tom och ej float
       %disp('1.1 isamptyy')
-      count=count+1;
-      time(count) = toc;  %tar tiden
-      data1(count) = inputvalue1(count);%tar datan
-      data2(count) = inputvalue2(count);
-      data3(count) = inputvalue3(count);
-      
-      %ange axrl enligt scrollwidth
-      if(scrollwidth > 0)
+      count1=count1+1;
+      time(count1) = toc;  %tar tiden
+      data1(count1) = inputvalue0(count1);%tar datan
+      if(scrollwidth1 > 0)
           %disp('2.1 if scroll')
-          set(plotGraph1,'XData',time(time > time(count)-scrollwidth),...
-              'YData',data1(time > time(count)-scrollwidth));
-          set(plotGraph2,'XData',time(time > time(count)-scrollwidth),...
-              'YData',data2(time > time(count)-scrollwidth));
-          set(plotGraph3,'XData',time(time > time(count)-scrollwidth),...
-              'YData',data3(time > time(count)-scrollwidth));
-          axis([time(count)-scrollwidth time(count) min max]);
+          set(plotGraph0,'XData',time(time > time(count1)-scrollwidth1),...
+              'YData',data1(time > time(count1)-scrollwidth1));
+          axis([time(count1)-scrollwidth1 time(count1) min1 max1]);
+          
           
       else
           %disp('2.2 ELSE LOL')
-          set(plotGraph1,'XData',time,'YData',data1);
-          set(plotGraph2,'XData',time,'YData',data2);
-          set(plotGraph3,'XData',time,'YData',data3);
-          axis([0 time(count) min max]);
+          set(plotGraph0,'XData',time,'YData',data1);
+          axis([0 time(count1) min1 max1]);
       end
-  
+      %pause(delay1);
+end
+
+% 
+
+
+axes(handles.maxes2)
+%Graf_2 maxes2: grafikdel av beräkningar
+%konstanter
+
+plotGrid2 = 'on';
+min2 = -100;
+max2 = 100;
+scrollwidth2 = 10;
+delay2 = .001;
+
+%Grafikdetaljer
+plotGraph2 = plot(time,data2,'-o',...
+    'LineWidth',1,...
+    'MarkerSize',3,...
+    'MarkerEdgeColor','k',...
+    'MarkerFaceColor','r');
+hold on;
+
+%Grafikspecifikationer
+title('Graf 2','FontSize',15);
+xlabel(xxLabel,'FontSize',12);
+ylabel(yyLabel,'FontSize',12);
+axis([0 10 min2 max2]);
+grid(plotGrid2) %aktiverar grid
+
+%funktion of death
+inputvalue2 = (armAngle.*toc./toc);
+if(~isempty(inputvalue2)) %ej tom och ej float
+      %disp('1.1 isamptyy')
+      count=count+1;
       
-      
-      %Tid för grafen att uppdatera sig
-      %pause(delay);
-  end
-   axes(handles.maxes2)
+      time(count) = toc;  %tar tiden
+      data2(count) = inputvalue2(count);%tar datan
+      if(scrollwidth2 > 0)
+          %disp('2.1 if scroll')
+          set(plotGraph2,'XData',time(time > time(count)-scrollwidth2),...
+              'YData',data2(time > time(count)-scrollwidth2));
+          axis([time(count)-scrollwidth2 time(count) min2 max2]);
+          
+          
+      else
+          %disp('2.2 ELSE LOL')
+          set(plotGraph2,'XData',time,'YData',data2);
+          axis([0 time(count) min2 max2]);
+      end
+      %pause(delay2);
+end
 end
 
 %fclose(s);
-clear all;
+%clear all;
 disp('THE END')
+a
 
 
 % --- Executes on button press in pushbutton1.
@@ -279,7 +299,41 @@ function pushbutton1_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+%TrackFcn(hObject, eventdata, handles);
 
+%parpool(3)
+depthVid = videoinput('kinect', 2);
+
+job1 = batch('TrackFcn')
+job2 = batch('CountFcn')
+ wait(job2);
+ res = load(job2)
+ disp(res)
+ wait(job1);
+ Y=load(job1)
+ plot(Y)
+ 
+ 
+% x = true;
+% while (x ==true)
+% f1 = parfeval(@TrackFcn, 1);
+% %f2 = parfeval(@CountFcn, 1);
+% % fetchNext waits for one of the functions to complete,
+% % and also gets the result
+% [idx, result] = fetchNext([f1]);%, f2]);
+% % We're done, so we can cancel f1 and f2 (one will actually already be complete)
+% result
+% cancel([f1]);%, f2]);
+% delete(gcp);
+% end
+
+% parfor i = 1:2
+%     if i == 1
+%       TrackFcn(hObject, eventdata, handles)
+%     else
+%      CountFcn
+%     end
+% end
 
 % hObject    handle to togglebutton1 (see GCBO)
 
